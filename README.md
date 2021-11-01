@@ -1,4 +1,4 @@
-# ecmo
+# ECMO
 ECMO receives an firmware image and it can successfully re-host the Linux kernel inside the image to get the shell. Due to the variety of peripherals in embedded firmware images. It is rather hard to build a general emulator that supports all kinds of machines. The basic idea of ECMO is to transplant the
 peripherals by support ones into the target Linux kernel, hence solve the problem of peripheral variety.
 
