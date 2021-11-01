@@ -1,0 +1,140 @@
+/dts-v1/;
+
+/ {
+	#address-cells = <0x1>;
+	#size-cells = <0x1>;
+	compatible = "plxtech,nas7820", "plxtech,nas782x";
+	interrupt-parent = <0x1>;
+	model = "Shuttle KD20";
+
+	chosen {
+		bootargs = "console=ttyS0,115200n8 earlyprintk=serial";
+	};
+
+	aliases {
+		serial0 = "/uart@44200000";
+		gpio0 = "/pinctrl/gpio@44000000";
+		gpio1 = "/pinctrl/gpio@44100000";
+		ethernet0 = "/ethernet@40400000";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0>;
+	};
+
+	cpus {
+
+		cpu@0 {
+			compatible = "arm,arm11mpcore";
+		};
+	};
+
+	uart@44200000 {
+		compatible = "ns16550";
+		reg = <0x44200000 0x100>;
+		interrupts = <0xd 0x55 0x4>;
+		clock-frequency = <0x625000>;
+		status = "okay";
+	};
+
+	nand@41000000 {
+		compatible = "plxtech,nand-nas782x", "gen_nand";
+		reg = <0x41000000 0x100000 0x41c00000 0x20>;
+		nand-ecc-mode = "soft";
+		clocks = <0x6 0x9>;
+		pinctrl-names = "default";
+		pinctrl-0 = <0xb>;
+		resets = <0x3 0xf>;
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		status = "okay";
+
+		partition@0 {
+			label = "boot";
+			reg = <0x0 0xe00000>;
+		};
+
+		partition@e00000 {
+			label = "ubi";
+			reg = <0xe00000 0x7200000>;
+		};
+	};
+
+	chipcommonA {
+		compatible = "simple-bus";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+
+		xtal24mhz@24M {
+			#clock-cells = <0x0>;
+			compatible = "fixed-clock";
+			clock-frequency = <0x16e3600>;
+			linux,phandle = <0x11>;
+			phandle = <0x11>;
+		};
+
+		amba {
+			compatible = "arm,amba-bus";
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			ranges;
+
+			intc@10140000 {
+				compatible = "arm,versatile-vic";
+				interrupt-controller;
+				#interrupt-cells = <0x1>;
+				reg = <0x10140000 0x1000>;
+				clear-mask = <0xffffffff>;
+				valid-mask = <0xffffffff>;
+			};
+
+			timer@101e2000 {
+				compatible = "arm,sp804", "arm,primecell";
+				reg = <0x101e2000 0x1000>;
+				interrupts = <0x4>;
+				clocks = <0xf 0xf 0x10>;
+				clock-names = "timer0", "timer1", "apb_pclk";
+			};
+
+			timer@101e3000 {
+				compatible = "arm,sp804", "arm,primecell";
+				reg = <0x101e3000 0x1000>;
+				interrupts = <0x5>;
+				clocks = <0xf 0xf 0x10>;
+				clock-names = "timer0", "timer1", "apb_pclk";
+			};
+		};
+	};
+
+	core-module@10000000 {
+		compatible = "arm,core-module-versatile", "syscon";
+		reg = <0x10000000 0x200>;
+
+		cm_aux_osc@24M {
+			#clock-cells = <0x0>;
+			compatible = "arm,versatile-cm-auxosc";
+			clocks = <0x11>;
+		};
+
+		timclk@1M {
+			#clock-cells = <0x0>;
+			compatible = "fixed-factor-clock";
+			clock-div = <0x18>;
+			clock-mult = <0x1>;
+			clocks = <0x11>;
+			linux,phandle = <0xf>;
+			phandle = <0xf>;
+		};
+
+		pclk@24M {
+			#clock-cells = <0x0>;
+			compatible = "fixed-factor-clock";
+			clock-div = <0x1>;
+			clock-mult = <0x1>;
+			clocks = <0x11>;
+			linux,phandle = <0x10>;
+			phandle = <0x10>;
+		};
+	};
+};
